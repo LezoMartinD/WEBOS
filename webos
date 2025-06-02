@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Presentación Pro</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1>¡Hola! Soy <span>Tu Nombre</span></h1>
+    <p>Esta es una presentación web que se ve brutal 😎</p>
+    <a href="#contacto" class="btn">Contáctame</a>
+  </div>
+
+  <footer id="contacto">
+    <p>Email: <a href="mailto:ejemplo@email.com">ejemplo@email.com</a></p>
+  </footer>
+</body>
+</html>
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #1f1c2c, #928dab);
+  color: white;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.container {
+  max-width: 600px;
+}
+
+h1 span {
+  color: #00ffcc;
+}
+
+.btn {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 12px 24px;
+  background: #00ffcc;
+  color: #1f1c2c;
+  border: none;
+  border-radius: 25px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: transform 0.2s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+  background: white;
+  color: #1f1c2c;
+}
+
+footer {
+  position: absolute;
+  bottom: 20px;
+  font-size: 14px;
+}

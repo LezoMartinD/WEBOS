@@ -1,0 +1,67 @@
+{
+    "Hoja1": [
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": null,
+            "Unnamed: 2": null,
+            "Unnamed: 3": null,
+            "Unnamed: 4": null
+        },
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": null,
+            "Unnamed: 2": "Defensive",
+            "Unnamed: 3": "Moderate",
+            "Unnamed: 4": "Aggressive"
+        },
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": "Adjusted Annualized Return",
+            "Unnamed: 2": 0.07691243667639092,
+            "Unnamed: 3": 0.08993218974401374,
+            "Unnamed: 4": 0.10706567527010602
+        },
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": "Total Return on the period of the adjusted return",
+            "Unnamed: 2": 4.4351528245726515,
+            "Unnamed: 3": 6.15237072676002,
+            "Unnamed: 4": 9.21434641210738
+        },
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": "Total outperformance of the adjusted return over the stablished benchmark",
+            "Unnamed: 2": 1.6447143582161714,
+            "Unnamed: 3": 2.078735071424683,
+            "Unnamed: 4": 3.8575135677931884
+        },
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": "Adjusted Alpha",
+            "Unnamed: 2": 0.026682439020239812,
+            "Unnamed: 3": 0.024878776754535092,
+            "Unnamed: 4": 0.031280236665992556
+        },
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": "Volatility",
+            "Unnamed: 2": 0.05484747961827548,
+            "Unnamed: 3": 0.08028451212846693,
+            "Unnamed: 4": 0.10420057911346839
+        },
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": "Adjusted VaR 95 Anual",
+            "Unnamed: 2": -0.07901965808557135,
+            "Unnamed: 3": -0.12363502526371341,
+            "Unnamed: 4": -0.159559249902527
+        },
+        {
+            "Unnamed: 0": null,
+            "Unnamed: 1": "Adjusted Maximum Dradown",
+            "Unnamed: 2": -0.043713332209927014,
+            "Unnamed: 3": -0.09971800219117433,
+            "Unnamed: 4": -0.14968998298654412
+        }
+    ]
+}
