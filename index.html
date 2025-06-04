@@ -344,10 +344,18 @@
       });
     });
 
-    // Color palette personalizada
+    // Paletas personalizadas para renta fija (azul) y renta variable (rojo)
     function generateBluePalette(n) {
-      const baseColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'];
-      return Array.from({ length: n }, (_, i) => baseColors[i % baseColors.length]);
+      return Array.from({ length: n }, (_, i) => {
+        const light = 85 - (i * 40 / (n - 1));
+        return `hsl(210, 100%, ${light}%)`;
+      });
+    }
+    function generateRedPalette(n) {
+      return Array.from({ length: n }, (_, i) => {
+        const light = 85 - (i * 40 / (n - 1));
+        return `hsl(0, 100%, ${light}%)`;
+      });
     }
 
     // Economic Outlook
@@ -568,13 +576,47 @@
                 vals.push(v * 100);
               }
             });
+
+            // Determinar cuántos sectores de renta fija y renta variable hay en este portfolio
+            const fixedCount = labels.filter(l => l.toLowerCase().includes('renta fija')).length;
+            const varCount = labels.filter(l => l.toLowerCase().includes('renta variable')).length;
+            const blueColors = generateBluePalette(fixedCount);
+            const redColors = generateRedPalette(varCount);
+
+            // Asignar colores según el nombre del sector
+            const backgroundColors = [];
+            let fixedIndex = 0, varIndex = 0;
+            labels.forEach(l => {
+              const lower = l.toLowerCase();
+              if (lower.includes('renta fija')) {
+                backgroundColors.push(blueColors[fixedIndex++]);
+              } else if (lower.includes('renta variable')) {
+                backgroundColors.push(redColors[varIndex++]);
+              } else {
+                // Si no contiene ninguno, usar gris neutro
+                backgroundColors.push('#cccccc');
+              }
+            });
+
             const c = document.createElement('canvas');
             c.classList.add('sector-chart');
             cw.appendChild(c);
             new Chart(c.getContext('2d'), {
-              type:'pie',
-              data:{ labels, datasets:[{ data:vals, backgroundColor:generateBluePalette(vals.length) }]},
-              options:{ responsive:false, plugins:{ title:{display:true,text:'Portfolio Distribution'}, legend:{position:'right'} } }
+              type: 'pie',
+              data: {
+                labels,
+                datasets: [{
+                  data: vals,
+                  backgroundColor: backgroundColors
+                }]
+              },
+              options: {
+                responsive: false,
+                plugins: {
+                  title: { display: true, text: 'Portfolio Distribution' },
+                  legend: { position: 'right' }
+                }
+              }
             });
 
             const md = wrap.querySelector('.metrics');
