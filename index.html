@@ -344,12 +344,10 @@
       });
     });
 
-    // Blue palette
+    // Color palette personalizada
     function generateBluePalette(n) {
-      return Array.from({ length: n }, (_, i) => {
-        const light = 85 - (i * 40 / (n - 1));
-        return `hsl(210, 100%, ${light}%)`;
-      });
+      const baseColors = ['#FF6384','#36A2EB','#FFCE56','#4BC0C0','#9966FF','#FF9F40'];
+      return Array.from({ length: n }, (_, i) => baseColors[i % baseColors.length]);
     }
 
     // Economic Outlook
