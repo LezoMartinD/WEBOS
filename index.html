@@ -160,11 +160,7 @@
       <h2>Economic Outlook</h2>
       <div class="outlook-hero"></div>
       <div class="outlook-summary">
-        <ul>
-          <li>Nowcast indicates moderate growth (~2.1% annualized).</li>
-          <li>Recession risk at 15% in t+3 months.</li>
-          <li>Recession probability at 22% in t+6 months.</li>
-        </ul>
+
       </div>
       <nav class="outlook-nav">
         <ul>
@@ -216,9 +212,6 @@
         </div>
       </div>
       <div class="outlook-methodology">
-        <h3>Methodology</h3>
-        <p>Models based on GDP, unemployment, PMIs, and interest rates. Data from IMF and OECD.</p>
-        <a href="docs/metodologia_outlook.pdf">View full document</a>
       </div>
     </section>
 
@@ -255,7 +248,7 @@
     <section id="backtesting" class="section">
       <h2>Backtesting Results</h2>
       <!-- Subtítulo corregido: ocupa el 100% del ancho, centrado y con padding interno -->
-      <p class="subtitle">Comparativa de estrategias ajustadas vs benchmark en el periodo 2001–2024</p>
+      <p class="subtitle">Comparison of adjusted vs benchmark strategies for the period 2001-2024</p>
       <div class="backtesting-hero"></div>
       <div id="backtesting-charts" class="charts-wrapper">
 
@@ -346,17 +339,57 @@
 
     // Paletas personalizadas para renta fija (azul) y renta variable (rojo)
     function generateBluePalette(n) {
+      if (n === 1) {
+        // Si solo hay un elemento, devolver un azul de luminosidad media
+        return ['hsl(210, 100%, 60%)'];
+      }
       return Array.from({ length: n }, (_, i) => {
         const light = 85 - (i * 40 / (n - 1));
         return `hsl(210, 100%, ${light}%)`;
       });
     }
     function generateRedPalette(n) {
+      if (n === 1) {
+        // Si solo hay un elemento, devolver un rojo de luminosidad media
+        return ['hsl(0, 100%, 60%)'];
+      }
       return Array.from({ length: n }, (_, i) => {
         const light = 85 - (i * 40 / (n - 1));
         return `hsl(0, 100%, ${light}%)`;
       });
     }
+
+    // Mapeo de cada activo a su tipo (variable o fixed)
+    const typeMap = {
+      'HEALTH':           'variable',
+      'TECH':             'variable',
+      'FINANCIAL':        'variable',
+      'ENERGY':           'variable',
+      'CONSU DISC':       'variable',
+      'CONS STAP':        'variable',
+      'INDUST':           'variable',
+      'MATERIALS':        'variable',
+      'TELECO':           'variable',
+      'REIT':             'variable',
+      'UTILITIES':        'variable',
+      'GROWTH':           'variable',
+      'VALUE':            'variable',
+      'MOMENTUM':         'variable',
+      'QUALITY':          'variable',
+      'SMALL CAP':        'variable',
+      'LARGE CAP':        'variable',
+      'US TREASURY 1-3Y':   'fixed',
+      'US TREASURY 3-5Y':   'fixed',
+      'US TREASURY 5-7Y':   'fixed',
+      'US TREASURY 7-10Y':  'fixed',
+      'CORPORATE 1-3Y':     'fixed',
+      'CORPORATE 3-5Y':     'fixed',
+      'CORPORATE 5-7Y':     'fixed',
+      'CORPORATE 7-10Y':    'fixed',
+      'HIGH YIELD':         'fixed',
+      'INVESTMENT GRADE':   'fixed',
+      'MONEY MARKET FUND':  'fixed'
+    };
 
     // Economic Outlook
     async function cargarOutlookCharts() {
@@ -547,8 +580,17 @@
           return r.json();
         });
         const header = data[0];
-        const scenarios = { SLOWDOWN:'slowdown', CONTRACTION:'recession', RECOVERY:'recovery', EXPANSION:'expansion' };
-        const types = { DEFENSIVE:'Conservative', MODERATE:'Moderate', AGGRESSIVE:'Aggressive' };
+        const scenarios = {
+          SLOWDOWN: 'slowdown',
+          CONTRACTION: 'recession',
+          RECOVERY: 'recovery',
+          EXPANSION: 'expansion'
+        };
+        const types = {
+          DEFENSIVE: 'Conservative',
+          MODERATE: 'Moderate',
+          AGGRESSIVE: 'Aggressive'
+        };
         const ar = data.find(r => r['Unnamed: 1'] === 'ANNUAL RETURN');
         const av = data.find(r => r['Unnamed: 1'] === 'ANNUAL VOLATILITY');
         const rv = data.find(r => r['Unnamed: 1'] === 'RV');
@@ -557,47 +599,57 @@
         Object.entries(header).forEach(([colKey, sc]) => {
           if (!scenarios[sc]) return;
           const idx = +colKey.match(/\d+/)[0];
-          const container = document.getElementById(scenarios[sc]).querySelector('.portfolio-charts');
-          [1,2,3].forEach(off => {
-            const rawType = header[`Unnamed: ${idx+off}`];
-            const title = types[rawType] || rawType.charAt(0).toUpperCase() + rawType.slice(1).toLowerCase();
+          const container = document
+            .getElementById(scenarios[sc])
+            .querySelector('.portfolio-charts');
+          [1, 2, 3].forEach(off => {
+            const rawType = header[`Unnamed: ${idx + off}`];
+            const title =
+              types[rawType] ||
+              rawType.charAt(0).toUpperCase() + rawType.slice(1).toLowerCase();
             const wrap = document.createElement('div');
             wrap.className = 'client-portfolio';
             wrap.innerHTML = `<h3>${title}</h3><div class="charts-wrapper"></div><div class="metrics"></div>`;
             container.appendChild(wrap);
 
             const cw = wrap.querySelector('.charts-wrapper');
-            const labels = [], vals = [];
+            const labels = [],
+              vals = [];
             data.slice(1).forEach(r => {
               const nm = r['Unnamed: 1'];
-              const v = r[`Unnamed: ${idx+off}`];
-              if (nm && !['ANNUAL RETURN','ANNUAL VOLATILITY','RV','RF'].includes(nm) && v > 0) {
+              const v = r[`Unnamed: ${idx + off}`];
+              if (
+                nm &&
+                !['ANNUAL RETURN', 'ANNUAL VOLATILITY', 'RV', 'RF'].includes(nm) &&
+                v > 0
+              ) {
                 labels.push(nm.trim());
                 vals.push(v * 100);
               }
             });
 
-            // Determinar cuántos sectores de renta fija y renta variable hay en este portfolio
-            const fixedCount = labels.filter(l => l.toLowerCase().includes('renta fija')).length;
-            const varCount = labels.filter(l => l.toLowerCase().includes('renta variable')).length;
+            // Contar cuántos sectores de renta fija y renta variable hay en este portfolio
+            const fixedCount = labels.filter(l => typeMap[l] === 'fixed').length;
+            const varCount = labels.filter(l => typeMap[l] === 'variable').length;
             const blueColors = generateBluePalette(fixedCount);
             const redColors = generateRedPalette(varCount);
 
-            // Asignar colores según el nombre del sector
+            // Asignar colores según el tipo usando typeMap
             const backgroundColors = [];
-            let fixedIndex = 0, varIndex = 0;
+            let bi = 0,
+              ri = 0;
             labels.forEach(l => {
-              const lower = l.toLowerCase();
-              if (lower.includes('renta fija')) {
-                backgroundColors.push(blueColors[fixedIndex++]);
-              } else if (lower.includes('renta variable')) {
-                backgroundColors.push(redColors[varIndex++]);
+              if (typeMap[l] === 'fixed') {
+                backgroundColors.push(blueColors[bi++]);
+              } else if (typeMap[l] === 'variable') {
+                backgroundColors.push(redColors[ri++]);
               } else {
-                // Si no contiene ninguno, usar gris neutro
+                // Si no coincide con ninguno, usar gris neutro
                 backgroundColors.push('#cccccc');
               }
             });
 
+            // **Aquí se asegura que el slowdown también use la paleta de azul/rojo**
             const c = document.createElement('canvas');
             c.classList.add('sector-chart');
             cw.appendChild(c);
@@ -605,10 +657,12 @@
               type: 'pie',
               data: {
                 labels,
-                datasets: [{
-                  data: vals,
-                  backgroundColor: backgroundColors
-                }]
+                datasets: [
+                  {
+                    data: vals,
+                    backgroundColor: backgroundColors
+                  }
+                ]
               },
               options: {
                 responsive: false,
@@ -621,11 +675,19 @@
 
             const md = wrap.querySelector('.metrics');
             md.innerHTML = `
-              <p><strong>Annual Return:</strong> ${(ar[`Unnamed: ${idx+off}`]*100).toFixed(2)}%</p>
-              <p><strong>Volatility:</strong> ${(av[`Unnamed: ${idx+off}`]*100).toFixed(2)}%</p>
+              <p><strong>Annual Return:</strong> ${(ar[`Unnamed: ${idx +
+                off}`] *
+                100).toFixed(2)}%</p>
+              <p><strong>Volatility:</strong> ${(av[`Unnamed: ${idx +
+                off}`] *
+                100).toFixed(2)}%</p>
               <div class="income">
-                <p><strong>Fixed Income:</strong> ${(rf[`Unnamed: ${idx+off}`]*100).toFixed(2)}%</p>
-                <p><strong>Variable Income:</strong> ${(rv[`Unnamed: ${idx+off}`]*100).toFixed(2)}%</p>
+                <p><strong>Fixed Income:</strong> ${(rf[`Unnamed: ${idx +
+                  off}`] *
+                  100).toFixed(2)}%</p>
+                <p><strong>Variable Income:</strong> ${(rv[`Unnamed: ${idx +
+                  off}`] *
+                  100).toFixed(2)}%</p>
               </div>
             `;
           });
@@ -635,13 +697,16 @@
         document.querySelectorAll('.portfolio-nav a').forEach(tab => {
           tab.addEventListener('click', e => {
             e.preventDefault();
-            document.querySelectorAll('.portfolio-nav a').forEach(t => t.classList.remove('active'));
+            document
+              .querySelectorAll('.portfolio-nav a')
+              .forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            document.querySelectorAll('.portfolio-panel').forEach(p => p.classList.remove('active'));
+            document
+              .querySelectorAll('.portfolio-panel')
+              .forEach(p => p.classList.remove('active'));
             document.getElementById(tab.dataset.panel).classList.add('active');
           });
         });
-
       } catch (err) {
         console.error('Error al cargar Portfolios JSON:', err);
       }
@@ -652,7 +717,8 @@
       try {
         // 1) Cargar la serie temporal para los 3 perfiles
         const response = await fetch('data/backtesting.json');
-        if (!response.ok) throw new Error('backtesting.json no encontrado (HTTP ' + response.status + ')');
+        if (!response.ok)
+          throw new Error('backtesting.json no encontrado (HTTP ' + response.status + ')');
         const data = await response.json();
 
         // 1.0) Ignorar las primeras tres filas (encabezados)
@@ -667,12 +733,20 @@
         });
 
         // 1.2) Extraer cada serie
-        const defBench = cleanData.map(d => +d['Defensive Benchmark']   || +d['Unnamed: 3']);
-        const defAdj   = cleanData.map(d => +d['Defensive Adjusted']    || +d['Unnamed: 4']);
-        const modBench = cleanData.map(d => +d['Moderate Benchmark']   || +d['Unnamed: 7']);
-        const modAdj   = cleanData.map(d => +d['Moderate Adjusted']    || +d['Unnamed: 8']);
-        const aggBench = cleanData.map(d => +d['Aggressive Benchmark'] || +d['Unnamed: 11']);
-        const aggAdj   = cleanData.map(d => +d['Aggressive Adjusted']  || +d['Unnamed: 12']);
+        const defBench = cleanData.map(
+          d => +d['Defensive Benchmark'] || +d['Unnamed: 3']
+        );
+        const defAdj = cleanData.map(d => +d['Defensive Adjusted'] || +d['Unnamed: 4']);
+        const modBench = cleanData.map(
+          d => +d['Moderate Benchmark'] || +d['Unnamed: 7']
+        );
+        const modAdj = cleanData.map(d => +d['Moderate Adjusted'] || +d['Unnamed: 8']);
+        const aggBench = cleanData.map(
+          d => +d['Aggressive Benchmark'] || +d['Unnamed: 11']
+        );
+        const aggAdj = cleanData.map(
+          d => +d['Aggressive Adjusted'] || +d['Unnamed: 12']
+        );
 
         // Determinar fecha mínima y máxima de los datos
         const minDate = labels[0];
@@ -680,71 +754,69 @@
 
         // 2) Función helper para crear cada línea con escala fija y eje X en años
         function createLineChart(id, labelA, dataA, labelB, dataB) {
-          return new Chart(
-            document.getElementById(id).getContext('2d'),
-            {
-              type: 'line',
-              data: {
-                labels: labels,
-                datasets: [
-                  { label: labelA, data: dataA, tension: 0.2 },
-                  { label: labelB, data: dataB, tension: 0.2 }
-                ]
-              },
-              options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                  y: {
-                    min: 0,
-                    max: 110000,
-                    ticks: {
-                      callback: v => '$' + v.toLocaleString()
-                    }
-                  },
-                  x: {
-                    type: 'time',
-                    time: {
-                      parser: 'yyyy-MM-dd',
-                      unit: 'year',
-                      displayFormats: { year: 'yyyy' },
-                      tooltipFormat: 'LLL yyyy'
-                    },
-                    min: minDate,      // límite inferior
-                    max: maxDate,      // límite superior
-                    ticks: {
-                      autoSkip: true,
-                      maxTicksLimit: 6,
-                      maxRotation: 0
-                    }
+          return new Chart(document.getElementById(id).getContext('2d'), {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [
+                { label: labelA, data: dataA, tension: 0.2 },
+                { label: labelB, data: dataB, tension: 0.2 }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              scales: {
+                y: {
+                  min: 0,
+                  max: 110000,
+                  ticks: {
+                    callback: v => '$' + v.toLocaleString()
                   }
                 },
-                plugins: {
+                x: {
+                  type: 'time',
+                  time: {
+                    parser: 'yyyy-MM-dd',
+                    unit: 'year',
+                    displayFormats: { year: 'yyyy' },
+                    tooltipFormat: 'LLL yyyy'
+                  },
+                  min: minDate, // límite inferior
+                  max: maxDate, // límite superior
+                  ticks: {
+                    autoSkip: true,
+                    maxTicksLimit: 6,
+                    maxRotation: 0
+                  }
+                }
+              },
+              plugins: {
+                zoom: {
+                  pan: { enabled: true, mode: 'x' },
                   zoom: {
-                    pan: { enabled: true, mode: 'x' },
-                    zoom: {
-                      wheel: { enabled: true },
-                      pinch: { enabled: true },
-                      mode: 'x',
-                      limits: {
-                        x: { min: minDate, max: maxDate }  // asegurar que no pase de 2001–2024
-                      }
+                    wheel: { enabled: true },
+                    pinch: { enabled: true },
+                    mode: 'x',
+                    limits: {
+                      x: { min: minDate, max: maxDate } // asegurar que no pase de 2001–2024
                     }
                   }
                 }
               }
             }
-          );
+          });
         }
 
         // 3) Dibujar los tres perfiles
         createLineChart('defensiveChart', 'Defensive Benchmark', defBench, 'Defensive Adjusted', defAdj);
-        createLineChart('moderateChart',  'Moderate Benchmark',  modBench, 'Moderate Adjusted',  modAdj);
-        createLineChart('aggressiveChart','Aggressive Benchmark', aggBench, 'Aggressive Adjusted', aggAdj);
+        createLineChart('moderateChart', 'Moderate Benchmark', modBench, 'Moderate Adjusted', modAdj);
+        createLineChart('aggressiveChart', 'Aggressive Benchmark', aggBench, 'Aggressive Adjusted', aggAdj);
 
         // 4) Ahora cargamos el JSON con las métricas adicionales
         const metricsResponse = await fetch('data/Backtestin2_clean_noNaN.json');
-        if (!metricsResponse.ok) throw new Error('Backtestin2_clean_noNaN.json no encontrado (HTTP ' + metricsResponse.status + ')');
+        if (!metricsResponse.ok)
+          throw new Error('Backtestin2_clean_noNaN.json no encontrado (HTTP ' + metricsResponse.status + ')');
         const metricsData = await metricsResponse.json();
 
         // 4.1) “Hoja1” es el arreglo de filas
@@ -755,9 +827,9 @@
 
         // 4.3) Definimos un mapping de “perfil → columna”
         const mappingColumn = {
-          'Defensive':  'Unnamed: 2',
-          'Moderate':   'Unnamed: 3',
-          'Aggressive': 'Unnamed: 4'
+          Defensive: 'Unnamed: 2',
+          Moderate: 'Unnamed: 3',
+          Aggressive: 'Unnamed: 4'
         };
 
         // 4.4) Función auxiliar para formatear cada valor de métrica (siempre %)
@@ -783,7 +855,6 @@
             tbody.appendChild(tr);
           });
         });
-
       } catch (error) {
         console.error('Error al cargar backtesting o métricas:', error);
         document.getElementById('backtesting-json').textContent =
